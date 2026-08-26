@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.ai import router as ai_router
@@ -19,7 +19,7 @@ from app.api.root_cause_preview import router as root_cause_router
 from app.api.recommendations_preview import router as recommendations_router
 from app.api.scenarios import router as scenarios_router
 
-app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.4.1")
+app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.5.0")
 
 configured_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
 allow_origins = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
@@ -30,6 +30,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def strip_vercel_api_prefix(request: Request, call_next):
+    """Allow Vercel to expose FastAPI under /api while preserving local routes."""
+    path = request.scope.get("path", "")
+    if path == "/api":
+        request.scope["path"] = "/"
+    elif path.startswith("/api/"):
+        request.scope["path"] = path[4:]
+    return await call_next(request)
+
 
 app.include_router(datasets_router)
 app.include_router(analytics_router)
