@@ -26,14 +26,14 @@ export default function RealDatasetIntelligence() {
     const active = loadDataset();
     setDataset(active);
     if (!active) { setStatus("No dataset loaded"); return; }
-    async function runAnalysis() {
+    async function runAnalysis(current: DatasetResult) {
       try {
-        const payload = { rows: active.preview, filename: active.filename };
+        const payload = { rows: current.preview, filename: current.filename };
         const [analysisResponse, anomalyResponse, driverResponse, forecastResponse] = await Promise.all([
           fetch(`${apiUrl}/intelligence/analyze-preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }),
           fetch(`${apiUrl}/anomalies/preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }),
-          fetch(`${apiUrl}/root-cause/preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: active.preview, metric: "Profit" }) }),
-          fetch(`${apiUrl}/forecast/preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: active.preview, metric: "Revenue", periods: 3 }) }),
+          fetch(`${apiUrl}/root-cause/preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: current.preview, metric: "Profit" }) }),
+          fetch(`${apiUrl}/forecast/preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: current.preview, metric: "Revenue", periods: 3 }) }),
         ]);
         if (!analysisResponse.ok) throw new Error("Backend analysis unavailable");
         const analysisBody = await analysisResponse.json();
@@ -46,7 +46,7 @@ export default function RealDatasetIntelligence() {
         setStatus("Backend intelligence ready");
       } catch { setStatus("Using profiled preview — backend intelligence unavailable"); }
     }
-    void runAnalysis();
+    void runAnalysis(active);
   }, []);
 
   if (!dataset) return <section style={cardStyle}><h2>No dataset loaded</h2><p style={{color:"#667085"}}>Return to the dashboard and load a CSV/XLSX file or the demo dataset first.</p></section>;
