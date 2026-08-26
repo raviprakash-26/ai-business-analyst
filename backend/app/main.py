@@ -11,7 +11,6 @@ from app.api.datasets import router as datasets_router
 from app.api.forecast_preview import router as forecast_router
 from app.api.insights import router as insights_router
 from app.api.intelligence import router as intelligence_router
-from app.api.llm import router as llm_router
 from app.api.root_cause_preview import router as root_cause_router
 from app.api.recommendations_preview import router as recommendations_router
 from app.api.scenarios import router as scenarios_router
@@ -26,7 +25,6 @@ app.include_router(grounded_analyst_router)
 app.include_router(insights_router)
 app.include_router(charts_router)
 app.include_router(ai_router)
-app.include_router(llm_router)
 app.include_router(anomalies_router)
 app.include_router(root_cause_router)
 app.include_router(forecast_router)
