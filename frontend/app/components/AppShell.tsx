@@ -34,7 +34,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return <div className="app-shell" style={shellStyle}>
     <aside className="app-sidebar" style={sidebarStyle}>
-      <Link href="/dashboard" style={brandStyle}><span style={logoStyle}>AI</span><span className="brand-copy" style={{display:"grid",gap:2}}><strong>Business Analyst</strong><small className="muted" style={{color:"#8294ae"}}>Decision Intelligence</small></span></Link>
+      <Link href="/dashboard" style={brandStyle}><span style={logoStyle}>AIBA</span><span className="brand-copy" style={{display:"grid",gap:2}}><strong>Business Analyst</strong><small className="muted" style={{color:"#8294ae"}}>Decision Intelligence</small></span></Link>
       <nav style={navStyle}>{navigation.map(item => { const active=pathname===item.href||pathname.startsWith(`${item.href}/`); return <Link key={item.href} href={item.href} style={{...navItemStyle,...(active?activeStyle:{})}}><span style={{width:22,textAlign:"center",fontSize:17}}>{item.icon}</span><span className="nav-label" style={{flex:1}}>{item.label}</span>{item.badge&&<span className="nav-label" style={badgeStyle}>{item.badge}</span>}</Link>; })}</nav>
       <div className="dataset-card" style={datasetCardStyle}><div className="muted" style={{color:"#8294ae",fontSize:10,textTransform:"uppercase",letterSpacing:1.1}}>Current Dataset</div><div style={{display:"flex",gap:10,alignItems:"center",marginTop:10}}><span style={fileIconStyle}>▤</span><div className="nav-label"><strong style={{display:"block",fontSize:12}}>Business dataset</strong><span className="muted" style={{color:"#8294ae",fontSize:10}}>Ready for analysis</span></div></div></div>
       <div style={specialistStyle}><div style={{color:"#c4b5fd",fontWeight:800,fontSize:11}}>AI SPECIALIST GPT</div><p style={{margin:"8px 0 12px",color:"#d6def0",fontSize:11,lineHeight:1.45}}>Ask questions, discover insights and get management actions.</p><Link href="/analyst" className="glow-button" style={specialistButton}>Open Specialist →</Link></div>
@@ -50,7 +50,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 const shellStyle={minHeight:"100vh",background:"transparent",color:"var(--text)",display:"flex"};
 const sidebarStyle={width:258,padding:"22px 16px",background:"var(--sidebar)",borderRight:"1px solid var(--border)",display:"flex",flexDirection:"column" as const,gap:22,position:"fixed" as const,inset:"0 auto 0 0",zIndex:20,backdropFilter:"blur(24px)"};
 const brandStyle={display:"flex",alignItems:"center",gap:11,padding:"4px 8px",color:"var(--text)"};
-const logoStyle={width:40,height:40,borderRadius:12,display:"grid",placeItems:"center",background:"linear-gradient(135deg,#2563eb,#8b5cf6)",color:"white",fontWeight:900,fontSize:12,boxShadow:"0 0 28px rgba(99,102,241,.35)"};
+const logoStyle={width:40,height:40,borderRadius:12,display:"grid",placeItems:"center",background:"linear-gradient(135deg,#2563eb,#8b5cf6)",color:"white",fontWeight:900,fontSize:10,letterSpacing:"-.5px",boxShadow:"0 0 28px rgba(99,102,241,.35)"};
 const navStyle={display:"grid",gap:5};
 const navItemStyle={display:"flex",alignItems:"center",gap:10,padding:"11px 12px",borderRadius:12,color:"var(--muted)",fontWeight:650,fontSize:13,border:"1px solid transparent"};
 const activeStyle={background:"linear-gradient(90deg,rgba(79,70,229,.85),rgba(124,58,237,.72))",color:"#fff",borderColor:"rgba(167,139,250,.35)",boxShadow:"0 8px 24px rgba(79,70,229,.2)"};
