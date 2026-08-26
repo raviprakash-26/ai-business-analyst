@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import timedelta
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import pandas as pd
@@ -25,8 +23,6 @@ def forecast_preview(request: PreviewRequest) -> dict:
     values = pd.to_numeric(df[request.metric], errors="coerce").dropna().tolist()
     if len(values) < 3:
         raise HTTPException(status_code=400, detail="at least 3 numeric observations are required")
-
-    # Transparent baseline: linear trend over observation order.
     x = list(range(len(values)))
     x_mean = sum(x) / len(x)
     y_mean = sum(values) / len(values)
