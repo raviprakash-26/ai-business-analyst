@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.ai import router as ai_router
 from app.api.analytics import router as analytics_router
 from app.api.charts import router as charts_router
+from app.api.conversation import router as conversation_router
 from app.api.datasets import router as datasets_router
 from app.api.explanations import router as explanations_router
 from app.api.insights import router as insights_router
@@ -12,7 +13,7 @@ from app.api.llm import router as llm_router
 app = FastAPI(
     title="AI Business Analyst API",
     description="Backend API for the AI Business Analyst platform.",
-    version="0.9.0",
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -30,6 +31,7 @@ app.include_router(charts_router)
 app.include_router(ai_router)
 app.include_router(explanations_router)
 app.include_router(llm_router)
+app.include_router(conversation_router)
 
 
 @app.get("/health", tags=["system"])
