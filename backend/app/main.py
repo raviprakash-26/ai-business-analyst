@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.analytics import router as analytics_router
 from app.api.datasets import router as datasets_router
+from app.api.insights import router as insights_router
 
 app = FastAPI(
     title="AI Business Analyst API",
     description="Backend API for the AI Business Analyst platform.",
-    version="0.3.0",
+    version="0.4.0",
 )
 
 app.add_middleware(
@@ -20,9 +21,9 @@ app.add_middleware(
 
 app.include_router(datasets_router)
 app.include_router(analytics_router)
+app.include_router(insights_router)
 
 
 @app.get("/health", tags=["system"])
 def health_check() -> dict[str, str]:
-    """Return a lightweight health status for the API."""
     return {"status": "ok", "service": "ai-business-analyst-api"}
