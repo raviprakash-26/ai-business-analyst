@@ -22,12 +22,14 @@ def select_tools(question: str) -> list[str]:
     return list(dict.fromkeys(tools or ["summary"]))
 
 
-def answer_with_tools(question: str, analysis: dict[str, Any]) -> dict[str, Any]:
+def answer_with_tools(question: str, analysis: dict[str, Any], history: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    history = history or []
     selected = select_tools(question)
     evidence = {tool: run_tool(tool, analysis) for tool in selected}
     context = {
         "question": question,
-        "verified_answer": "Use only the verified evidence supplied below.",
+        "conversation_history": history[-10:],
+        "verified_answer": "Use only the verified evidence supplied below. Resolve follow-up references from the conversation history when possible.",
         "tool_used": ", ".join(selected),
         "result": evidence,
         "evidence": evidence,
@@ -39,5 +41,6 @@ def answer_with_tools(question: str, analysis: dict[str, Any]) -> dict[str, Any]
         "tools_used": selected,
         "evidence": evidence,
         "grounded": True,
+        "conversation_turns": len(history),
         "guardrail": "The language model receives verified tool outputs and is instructed not to invent or recalculate numeric values.",
     }
