@@ -5,7 +5,9 @@ import { ChangeEvent, useState } from "react";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 type Kpi = { id: string; label: string; value: number; unit?: string };
 type Insight = { type: string; title: string; message: string };
-type Chart = { id: string; type: string; title: string; data?: { category: string; value: number }[] };
+type ChartPoint = { category: string; value: number };
+type ScatterPoint = { x: number; y: number };
+type Chart = { id: string; type: string; title: string; x?: string; y?: string; data?: ChartPoint[] | ScatterPoint[] };
 
 export default function DashboardPage() {
   const [data, setData] = useState<{ kpis: Kpi[]; insights: Insight[]; charts: Chart[]; filename: string } | null>(null);
@@ -46,7 +48,41 @@ export default function DashboardPage() {
   );
 }
 
-function ChartCard({ chart }: { chart: Chart }) { const max = Math.max(...(chart.data?.map(x => x.value) ?? [1])); return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 18px" }}>{chart.title}</h3>{chart.data ? chart.data.map(item => <div key={item.category} style={{ marginBottom: 10 }}><div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}><span>{item.category}</span><strong>{item.value.toLocaleString()}</strong></div><div style={{ height: 8, marginTop: 5, borderRadius: 99, background: "#edf0f5" }}><div style={{ height: "100%", width: `${Math.min(100, item.value / max * 100)}%`, borderRadius: 99, background: "#172033" }} /></div></div>) : <p style={{ color: "#667085", marginBottom: 0 }}>Visualization specification ready for richer chart rendering.</p>}</article>; }
+function ChartCard({ chart }: { chart: Chart }) {
+  const isBar = chart.type === "bar";
+  const isHistogram = chart.type === "histogram";
+  const isScatter = chart.type === "scatter";
+  if (isScatter) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 12px" }}>{chart.title}</h3><ScatterChart data={(chart.data ?? []) as ScatterPoint[]} xLabel={chart.x ?? "X"} yLabel={chart.y ?? "Y"} /></article>;
+  if (isHistogram) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 12px" }}>{chart.title}</h3><HistogramChart data={(chart.data ?? []) as ChartPoint[]} /></article>;
+  if (isBar) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 18px" }}>{chart.title}</h3><BarChart data={(chart.data ?? []) as ChartPoint[]} /></article>;
+  return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 18px" }}>{chart.title}</h3><p style={{ color: "#667085", marginBottom: 0 }}>No renderable chart data was returned.</p></article>;
+}
+
+function BarChart({ data }: { data: ChartPoint[] }) {
+  const max = Math.max(...data.map(x => x.value), 1);
+  return <div style={{ height: 300, display: "flex", alignItems: "end", gap: 10, padding: "24px 8px 36px", borderBottom: "1px solid #d0d5dd" }}>
+    {data.map((item, index) => <div key={`${item.category}-${index}`} title={`${item.category}: ${item.value.toLocaleString()}`} style={{ flex: 1, minWidth: 18, height: `${Math.max(4, item.value / max * 100)}%`, background: "#172033", borderRadius: "7px 7px 0 0", position: "relative" }}><span style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: 8, fontSize: 10, color: "#667085", whiteSpace: "nowrap", maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis" }}>{item.category}</span></div>)}
+  </div>;
+}
+
+function HistogramChart({ data }: { data: ChartPoint[] }) {
+  const max = Math.max(...data.map(x => x.value), 1);
+  return <div style={{ height: 300, display: "flex", alignItems: "end", gap: 4, padding: "24px 8px 42px", borderBottom: "1px solid #d0d5dd" }}>
+    {data.map((item, index) => <div key={`${item.category}-${index}`} title={`${item.category}: ${item.value.toLocaleString()} rows`} style={{ flex: 1, minWidth: 8, height: `${Math.max(3, item.value / max * 100)}%`, background: "#172033", borderRadius: "4px 4px 0 0", position: "relative" }}><span style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%) rotate(-42deg)", transformOrigin: "top left", marginTop: 7, fontSize: 8, color: "#667085", whiteSpace: "nowrap" }}>{item.category}</span></div>)}
+  </div>;
+}
+
+function ScatterChart({ data, xLabel, yLabel }: { data: ScatterPoint[]; xLabel: string; yLabel: string }) {
+  if (!data.length) return <div style={{ height: 300, display: "grid", placeItems: "center", color: "#667085" }}>No numeric point pairs available.</div>;
+  const xs = data.map(p => p.x); const ys = data.map(p => p.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const dx = maxX - minX || 1, dy = maxY - minY || 1;
+  return <div style={{ position: "relative", height: 300, borderLeft: "1px solid #d0d5dd", borderBottom: "1px solid #d0d5dd", margin: "8px 10px 36px 24px" }}>
+    {data.map((p, i) => { const left = ((p.x - minX) / dx) * 96 + 2; const top = 98 - ((p.y - minY) / dy) * 96; return <span key={i} title={`${xLabel}: ${p.x.toLocaleString()} · ${yLabel}: ${p.y.toLocaleString()}`} style={{ position: "absolute", left: `${left}%`, top: `${top}%`, width: 7, height: 7, borderRadius: "50%", background: "#172033", transform: "translate(-50%, -50%)" }} />; })}
+    <span style={{ position: "absolute", left: "50%", bottom: -30, transform: "translateX(-50%)", fontSize: 10, color: "#667085" }}>{xLabel}</span>
+    <span style={{ position: "absolute", left: -32, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "left top", fontSize: 10, color: "#667085" }}>{yLabel}</span>
+  </div>;
+}
 
 const headerStyle = { display: "flex", justifyContent: "space-between", alignItems: "end", gap: 24, flexWrap: "wrap" as const, background: "white", borderRadius: 24, padding: 32, border: "1px solid #e7ebf2" };
 const eyebrowStyle = { margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" as const, color: "#667085" };
