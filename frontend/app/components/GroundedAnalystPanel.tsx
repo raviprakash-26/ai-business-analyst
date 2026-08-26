@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import { DatasetResult } from "../lib/dataset-session";
 import { AnalystMessage, clearAnalystMemory, loadAnalystMemory, saveAnalystMemory } from "../lib/analyst-memory";
 
@@ -42,13 +42,13 @@ export default function GroundedAnalystPanel({ dataset, analysis }: Props) {
     <p style={{fontSize:11,color:"#98a2b3",marginBottom:0,marginTop:12}}>Dataset: {dataset.filename}</p>
   </section>;
 }
-const cardStyle={background:"white",borderRadius:20,padding:26,border:"1px solid #e7ebf2"};
-const eyebrowStyle={margin:0,fontSize:11,fontWeight:800,letterSpacing:1.4,textTransform:"uppercase" as const,color:"#667085"};
-const inputStyle={flex:1,minWidth:0,border:"1px solid #d0d5dd",borderRadius:10,padding:"12px 14px",fontSize:14};
-const buttonStyle={border:0,borderRadius:10,padding:"12px 16px",background:"#172033",color:"white",cursor:"pointer",fontWeight:750};
-const clearStyle={border:"1px solid #d0d5dd",borderRadius:9,padding:"8px 11px",background:"white",cursor:"pointer",fontSize:12};
-const threadStyle={display:"grid",gap:10,maxHeight:420,overflowY:"auto",padding:"8px 0"};
-const userStyle={marginLeft:"12%",background:"#172033",color:"white",borderRadius:"14px 14px 4px 14px",padding:14};
-const assistantStyle={marginRight:"12%",background:"#f6f8fb",borderRadius:"14px 14px 14px 4px",padding:14};
-const emptyStyle={padding:20,border:"1px dashed #d0d5dd",borderRadius:12,color:"#667085"};
-const toolText={fontSize:11,color:"#667085",marginTop:8};
+const cardStyle: CSSProperties = {background:"white",borderRadius:20,padding:26,border:"1px solid #e7ebf2"};
+const eyebrowStyle: CSSProperties = {margin:0,fontSize:11,fontWeight:800,letterSpacing:1.4,textTransform:"uppercase",color:"#667085"};
+const inputStyle: CSSProperties = {flex:1,minWidth:0,border:"1px solid #d0d5dd",borderRadius:10,padding:"12px 14px",fontSize:14};
+const buttonStyle: CSSProperties = {border:0,borderRadius:10,padding:"12px 16px",background:"#172033",color:"white",cursor:"pointer",fontWeight:750};
+const clearStyle: CSSProperties = {border:"1px solid #d0d5dd",borderRadius:9,padding:"8px 11px",background:"white",cursor:"pointer",fontSize:12};
+const threadStyle: CSSProperties = {display:"grid",gap:10,maxHeight:420,overflowY:"auto",padding:"8px 0"};
+const userStyle: CSSProperties = {marginLeft:"12%",background:"#172033",color:"white",borderRadius:"14px 14px 4px 14px",padding:14};
+const assistantStyle: CSSProperties = {marginRight:"12%",background:"#f6f8fb",borderRadius:"14px 14px 14px 4px",padding:14};
+const emptyStyle: CSSProperties = {padding:20,border:"1px dashed #d0d5dd",borderRadius:12,color:"#667085"};
+const toolText: CSSProperties = {fontSize:11,color:"#667085",marginTop:8};
