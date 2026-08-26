@@ -66,4 +66,7 @@ def rank_column(df: pd.DataFrame, category_column: str, value_column: str, limit
         .sort_values(ascending=False)
         .head(max(1, min(limit, 50)))
     )
-    return [{"category": str(index), "value": float(value)} for index, value in result.items()]
+    return [
+        {"label": str(index), "category": str(index), "value": float(value), "dimension": category_column}
+        for index, value in result.items()
+    ]
