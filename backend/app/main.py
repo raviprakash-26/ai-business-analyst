@@ -10,6 +10,7 @@ from app.api.analytics import router as analytics_router
 from app.api.anomalies import router as anomalies_router
 from app.api.analyst import router as analyst_router
 from app.api.grounded_analyst import router as grounded_analyst_router
+from app.api.specialist import router as specialist_router
 from app.api.charts import router as charts_router
 from app.api.datasets import router as datasets_router
 from app.api.forecast_preview import router as forecast_router
@@ -19,7 +20,7 @@ from app.api.root_cause_preview import router as root_cause_router
 from app.api.recommendations_preview import router as recommendations_router
 from app.api.scenarios import router as scenarios_router
 
-app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.5.0")
+app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.6.0")
 
 configured_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
 allow_origins = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
@@ -48,6 +49,7 @@ app.include_router(analytics_router)
 app.include_router(intelligence_router)
 app.include_router(analyst_router)
 app.include_router(grounded_analyst_router)
+app.include_router(specialist_router)
 app.include_router(insights_router)
 app.include_router(charts_router)
 app.include_router(ai_router)
