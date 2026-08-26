@@ -5,7 +5,7 @@ import Link from "next/link";
 import DemoDatasetButton from "./components/DemoDatasetButton";
 import { saveDataset, DatasetResult } from "./lib/dataset-session";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export default function Home() {
   const [status, setStatus] = useState("Not connected");
@@ -13,7 +13,7 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
-  async function checkBackend() { setStatus("Checking…"); try { const response = await fetch(`${apiUrl}/health`); if (!response.ok) throw new Error("API request failed"); const data = await response.json(); setStatus(`${data.service}: ${data.status}`); } catch { setStatus("Backend unavailable — start FastAPI on port 8000."); } }
+  async function checkBackend() { setStatus("Checking…"); try { const response = await fetch(`${apiUrl}/health`); if (!response.ok) throw new Error("API request failed"); const data = await response.json(); setStatus(`${data.service}: ${data.status}`); } catch { setStatus("Backend unavailable — check the deployment API route."); } }
   async function profileFile(file: File) { setUploading(true); setError(""); setDataset(null); setStatus(`Profiling ${file.name}…`); try { const formData = new FormData(); formData.append("file", file); const response = await fetch(`${apiUrl}/datasets/profile`, { method: "POST", body: formData }); const body = await response.json(); if (!response.ok) throw new Error(body.detail ?? "Dataset upload failed."); setDataset(body); saveDataset(body); setStatus("Dataset ready for analysis"); } catch (profileError) { setError(profileError instanceof Error ? profileError.message : "Dataset upload failed."); setStatus("Dataset profiling failed"); } finally { setUploading(false); } }
   async function uploadDataset(event: ChangeEvent<HTMLInputElement>) { const file = event.target.files?.[0]; if (file) await profileFile(file); }
 
