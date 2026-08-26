@@ -1,92 +1,10 @@
 "use client";
-
 import { ChangeEvent, useState } from "react";
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-type Kpi = { id: string; label: string; value: number; unit?: string };
-type Insight = { type: string; title: string; message: string };
-type ChartPoint = { category: string; value: number };
-type ScatterPoint = { x: number; y: number };
-type Chart = { id: string; type: string; title: string; x?: string; y?: string; data?: ChartPoint[] | ScatterPoint[] };
-
-export default function DashboardPage() {
-  const [data, setData] = useState<{ kpis: Kpi[]; insights: Insight[]; charts: Chart[]; filename: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function analyze(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setLoading(true); setError("");
-    try {
-      const makeRequest = (path: string) => { const form = new FormData(); form.append("file", file); return fetch(`${apiUrl}${path}`, { method: "POST", body: form }); };
-      const [kpiResponse, insightResponse, chartResponse] = await Promise.all([makeRequest("/analytics/kpis"), makeRequest("/insights/generate"), makeRequest("/charts/recommend")]);
-      const [kpis, insights, charts] = await Promise.all([kpiResponse.json(), insightResponse.json(), chartResponse.json()]);
-      if (!kpiResponse.ok) throw new Error(kpis.detail ?? "KPI analysis failed.");
-      if (!insightResponse.ok) throw new Error(insights.detail ?? "Insight analysis failed.");
-      if (!chartResponse.ok) throw new Error(charts.detail ?? "Chart analysis failed.");
-      setData({ kpis: kpis.kpis ?? [], insights: insights.insights ?? [], charts: charts.charts ?? [], filename: file.name });
-    } catch (err) { setError(err instanceof Error ? err.message : "Dashboard analysis failed."); }
-    finally { setLoading(false); }
-  }
-
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
-      <header style={headerStyle}>
-        <div><p style={eyebrowStyle}>Executive Intelligence</p><h1 style={{ margin: "8px 0", fontSize: "clamp(34px, 5vw, 58px)" }}>Business Dashboard</h1><p style={{ color: "#667085", marginBottom: 0 }}>KPIs, evidence-backed insights, and recommended visual analysis.</p></div>
-        <label style={buttonStyle}>{loading ? "Analyzing…" : "Analyze Dataset"}<input type="file" accept=".csv,.xlsx" onChange={analyze} disabled={loading} style={{ display: "none" }} /></label>
-      </header>
-      {error && <div style={errorStyle}>{error}</div>}
-      {!data && !loading && !error && <section style={emptyStyle}>Upload a CSV or XLSX dataset to generate your executive dashboard.</section>}
-      {data && <>
-        <p style={{ color: "#667085", margin: "20px 0 12px" }}>Analyzing: <strong>{data.filename}</strong></p>
-        <section style={kpiGrid}>{data.kpis.map(kpi => <article key={kpi.id} style={cardStyle}><div style={{ color: "#667085", fontSize: 13 }}>{kpi.label}</div><strong style={{ display: "block", marginTop: 8, fontSize: 28 }}>{kpi.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}{kpi.unit ? ` ${kpi.unit}` : ""}</strong></article>)}</section>
-        <section style={sectionStyle}><div style={sectionHeading}><h2>Business Insights</h2><span>{data.insights.length} findings</span></div><div style={stackStyle}>{data.insights.length ? data.insights.map((x,i) => <article key={`${x.title}-${i}`} style={cardStyle}><div style={tagStyle}>{x.type}</div><h3 style={{ margin: "8px 0" }}>{x.title}</h3><p style={{ color: "#475467", lineHeight: 1.6, marginBottom: 0 }}>{x.message}</p></article>) : <div style={emptyStyle}>No significant patterns detected by the current rules.</div>}</div></section>
-        <section style={sectionStyle}><div style={sectionHeading}><h2>Recommended Visual Analysis</h2><span>{data.charts.length} charts</span></div><div style={chartGrid}>{data.charts.map(chart => <ChartCard key={chart.id} chart={chart} />)}</div></section>
-      </>}
-    </main>
-  );
-}
-
-function ChartCard({ chart }: { chart: Chart }) {
-  const isBar = chart.type === "bar";
-  const isHistogram = chart.type === "histogram";
-  const isScatter = chart.type === "scatter";
-  if (isScatter) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 12px" }}>{chart.title}</h3><ScatterChart data={(chart.data ?? []) as ScatterPoint[]} xLabel={chart.x ?? "X"} yLabel={chart.y ?? "Y"} /></article>;
-  if (isHistogram) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 12px" }}>{chart.title}</h3><HistogramChart data={(chart.data ?? []) as ChartPoint[]} /></article>;
-  if (isBar) return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 18px" }}>{chart.title}</h3><BarChart data={(chart.data ?? []) as ChartPoint[]} /></article>;
-  return <article style={cardStyle}><div style={tagStyle}>{chart.type}</div><h3 style={{ margin: "8px 0 18px" }}>{chart.title}</h3><p style={{ color: "#667085", marginBottom: 0 }}>No renderable chart data was returned.</p></article>;
-}
-
-function BarChart({ data }: { data: ChartPoint[] }) {
-  const max = Math.max(...data.map(x => x.value), 1);
-  return <div style={{ height: 300, display: "flex", alignItems: "end", gap: 10, padding: "24px 8px 36px", borderBottom: "1px solid #d0d5dd" }}>
-    {data.map((item, index) => <div key={`${item.category}-${index}`} title={`${item.category}: ${item.value.toLocaleString()}`} style={{ flex: 1, minWidth: 18, height: `${Math.max(4, item.value / max * 100)}%`, background: "#172033", borderRadius: "7px 7px 0 0", position: "relative" }}><span style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: 8, fontSize: 10, color: "#667085", whiteSpace: "nowrap", maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis" }}>{item.category}</span></div>)}
-  </div>;
-}
-
-function HistogramChart({ data }: { data: ChartPoint[] }) {
-  const max = Math.max(...data.map(x => x.value), 1);
-  return <div style={{ height: 300, display: "flex", alignItems: "end", gap: 4, padding: "24px 8px 42px", borderBottom: "1px solid #d0d5dd" }}>
-    {data.map((item, index) => <div key={`${item.category}-${index}`} title={`${item.category}: ${item.value.toLocaleString()} rows`} style={{ flex: 1, minWidth: 8, height: `${Math.max(3, item.value / max * 100)}%`, background: "#172033", borderRadius: "4px 4px 0 0", position: "relative" }}><span style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%) rotate(-42deg)", transformOrigin: "top left", marginTop: 7, fontSize: 8, color: "#667085", whiteSpace: "nowrap" }}>{item.category}</span></div>)}
-  </div>;
-}
-
-function ScatterChart({ data, xLabel, yLabel }: { data: ScatterPoint[]; xLabel: string; yLabel: string }) {
-  if (!data.length) return <div style={{ height: 300, display: "grid", placeItems: "center", color: "#667085" }}>No numeric point pairs available.</div>;
-  const xs = data.map(p => p.x); const ys = data.map(p => p.y);
-  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-  const dx = maxX - minX || 1, dy = maxY - minY || 1;
-  return <div style={{ position: "relative", height: 300, borderLeft: "1px solid #d0d5dd", borderBottom: "1px solid #d0d5dd", margin: "8px 10px 36px 24px" }}>
-    {data.map((p, i) => { const left = ((p.x - minX) / dx) * 96 + 2; const top = 98 - ((p.y - minY) / dy) * 96; return <span key={i} title={`${xLabel}: ${p.x.toLocaleString()} · ${yLabel}: ${p.y.toLocaleString()}`} style={{ position: "absolute", left: `${left}%`, top: `${top}%`, width: 7, height: 7, borderRadius: "50%", background: "#172033", transform: "translate(-50%, -50%)" }} />; })}
-    <span style={{ position: "absolute", left: "50%", bottom: -30, transform: "translateX(-50%)", fontSize: 10, color: "#667085" }}>{xLabel}</span>
-    <span style={{ position: "absolute", left: -32, top: "50%", transform: "rotate(-90deg) translateX(-50%)", transformOrigin: "left top", fontSize: 10, color: "#667085" }}>{yLabel}</span>
-  </div>;
-}
-
-const headerStyle = { display: "flex", justifyContent: "space-between", alignItems: "end", gap: 24, flexWrap: "wrap" as const, background: "white", borderRadius: 24, padding: 32, border: "1px solid #e7ebf2" };
-const eyebrowStyle = { margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" as const, color: "#667085" };
-const buttonStyle = { display: "inline-block", borderRadius: 12, padding: "13px 18px", background: "#172033", color: "white", cursor: "pointer", fontWeight: 700, whiteSpace: "nowrap" as const };
-const kpiGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginTop: 20 };
-const cardStyle = { background: "white", borderRadius: 18, padding: 22, border: "1px solid #e7ebf2" };
-const sectionStyle = { marginTop: 28 }; const sectionHeading = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 12 }; const stackStyle = { display: "grid", gap: 12 }; const chartGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14 }; const tagStyle = { display: "inline-block", padding: "4px 8px", borderRadius: 999, background: "#eef2f7", color: "#475467", fontSize: 11, fontWeight: 800, textTransform: "uppercase" as const, letterSpacing: 0.7 }; const emptyStyle = { background: "white", borderRadius: 18, padding: 28, border: "1px solid #e7ebf2", color: "#667085" }; const errorStyle = { marginTop: 16, padding: 14, borderRadius: 12, background: "#fff1f0", color: "#b42318", border: "1px solid #fecdca" };
+const apiUrl=process.env.NEXT_PUBLIC_API_URL||"/api";
+type Kpi={id:string;label:string;value:number;unit?:string}; type Insight={type:string;title:string;message:string}; type ChartPoint={category:string;value:number}; type ScatterPoint={x:number;y:number}; type Chart={id:string;type:string;title:string;x?:string;y?:string;data?:ChartPoint[]|ScatterPoint[]};
+export default function DashboardPage(){const[data,setData]=useState<{kpis:Kpi[];insights:Insight[];charts:Chart[];filename:string}|null>(null);const[loading,setLoading]=useState(false);const[error,setError]=useState("");async function analyze(e:ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];if(!file)return;setLoading(true);setError("");try{const req=(path:string)=>{const f=new FormData();f.append("file",file);return fetch(`${apiUrl}${path}`,{method:"POST",body:f})};const[a,b,c]=await Promise.all([req("/analytics/kpis"),req("/insights/generate"),req("/charts/recommend")]);const[kpis,insights,charts]=await Promise.all([a.json(),b.json(),c.json()]);if(!a.ok)throw new Error(kpis.detail||"KPI analysis failed.");if(!b.ok)throw new Error(insights.detail||"Insight analysis failed.");if(!c.ok)throw new Error(charts.detail||"Chart analysis failed.");setData({kpis:kpis.kpis||[],insights:insights.insights||[],charts:charts.charts||[],filename:file.name});}catch(err){setError(err instanceof Error?err.message:"Dashboard analysis failed.");}finally{setLoading(false)}}return <main style={{maxWidth:1500,margin:"0 auto",padding:"30px 28px 70px"}}><section style={heroStyle}><div><p style={eyebrow}>EXECUTIVE INTELLIGENCE</p><h1 style={{fontSize:"clamp(30px,4vw,48px)",margin:"7px 0",letterSpacing:-1}}>Business performance, at a glance.</h1><p style={sub}>Upload a dataset to generate verified KPIs, insights and visual analysis.</p></div><label className="glow-button" style={uploadButton}>{loading?"Analyzing…":"☁ Upload Dataset"}<input type="file" accept=".csv,.xlsx" onChange={analyze} disabled={loading} style={{display:"none"}}/></label></section>{error&&<div style={errorStyle}>{error}</div>}{!data&&!loading&&!error&&<section className="glass" style={emptyStyle}><div style={orb}>✦</div><h2 style={{margin:"16px 0 7px"}}>Your executive dashboard is waiting</h2><p style={{margin:0,color:"#9fb0c7"}}>Upload CSV/XLSX data and the workspace will populate with real business metrics.</p></section>}{data&&<><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",margin:"24px 0 12px"}}><div style={{color:"#9fb0c7",fontSize:12}}>Analyzing <strong style={{color:"#f8fbff"}}>{data.filename}</strong></div><span style={ready}>● ANALYTICS READY</span></div><section style={kpiGrid}>{data.kpis.map((k,i)=><article className="glass" key={k.id} style={kpiCard}><span style={kpiIcon}>{["$","◈","↗","◌","◎"][i%5]}</span><div><div style={kpiLabel}>{k.label}</div><strong style={kpiValue}>{k.value.toLocaleString(undefined,{maximumFractionDigits:2})}{k.unit?` ${k.unit}`:""}</strong><div style={trend}>↗ Verified metric</div></div></article>)}</section><section style={twoCol}><article className="glass" style={panel}><div style={panelHead}><div><p style={eyebrow}>AI INSIGHTS</p><h2 style={panelTitle}>What the data is telling you</h2></div><span style={count}>{data.insights.length} findings</span></div><div style={stack}>{data.insights.length?data.insights.map((x,i)=><div key={`${x.title}-${i}`} style={insight}><span style={insightIcon}>{["↗","◇","!","✦"][i%4]}</span><div><strong>{x.title}</strong><p>{x.message}</p></div></div>):<p style={{color:"#9fb0c7"}}>No significant patterns detected.</p>}</div></article><article className="glass" style={panel}><div style={panelHead}><div><p style={eyebrow}>DECISION SUPPORT</p><h2 style={panelTitle}>Ask the Specialist</h2></div></div><p style={{color:"#9fb0c7",lineHeight:1.6}}>Turn these findings into management actions, root-cause questions and profitability opportunities.</p><a href="/analyst" className="glow-button" style={specialistCta}>Open AI Specialist →</a></article></section><section style={{marginTop:24}}><div style={panelHead}><div><p style={eyebrow}>VISUAL ANALYSIS</p><h2 style={panelTitle}>Recommended Visual Analysis</h2></div><span style={count}>{data.charts.length} charts</span></div><div style={chartGrid}>{data.charts.map(c=><ChartCard key={c.id} chart={c}/>)}</div></section></>}</main>}
+function ChartCard({chart}:{chart:Chart}){if(chart.type==="scatter")return <article className="glass" style={chartCard}><span style={tag}>{chart.type}</span><h3>{chart.title}</h3><ScatterChart data={(chart.data||[]) as ScatterPoint[]} xLabel={chart.x||"X"} yLabel={chart.y||"Y"}/></article>;if(chart.type==="histogram")return <article className="glass" style={chartCard}><span style={tag}>{chart.type}</span><h3>{chart.title}</h3><HistogramChart data={(chart.data||[]) as ChartPoint[]}/></article>;return <article className="glass" style={chartCard}><span style={tag}>{chart.type}</span><h3>{chart.title}</h3><BarChart data={(chart.data||[]) as ChartPoint[]}/></article>}
+function BarChart({data}:{data:ChartPoint[]}){const max=Math.max(...data.map(x=>x.value),1);return <div style={bars}>{data.map((x,i)=><div key={i} style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"end",height:"100%"}}><div title={`${x.category}: ${x.value.toLocaleString()}`} style={{height:`${Math.max(5,x.value/max*88)}%`,background:"linear-gradient(180deg,#8b5cf6,#2563eb)",borderRadius:"7px 7px 2px 2px",boxShadow:"0 0 16px rgba(99,102,241,.2)"}}/><span style={axis}>{x.category}</span></div>)}</div>}
+function HistogramChart({data}:{data:ChartPoint[]}){return <BarChart data={data}/>}
+function ScatterChart({data,xLabel,yLabel}:{data:ScatterPoint[];xLabel:string;yLabel:string}){if(!data.length)return <div style={noData}>No numeric point pairs available.</div>;const xs=data.map(p=>p.x),ys=data.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),dx=maxX-minX||1,dy=maxY-minY||1;return <div style={{position:"relative",height:270,margin:"20px 8px 32px",borderLeft:"1px solid rgba(148,163,184,.18)",borderBottom:"1px solid rgba(148,163,184,.18)"}}>{data.map((p,i)=>{const left=((p.x-minX)/dx)*96+2,top=98-((p.y-minY)/dy)*96;return <span key={i} title={`${xLabel}: ${p.x} · ${yLabel}: ${p.y}`} style={{position:"absolute",left:`${left}%`,top:`${top}%`,width:8,height:8,borderRadius:"50%",background:"#38bdf8",boxShadow:"0 0 12px rgba(56,189,248,.7)"}}/>})}</div>}
+const heroStyle={display:"flex",justifyContent:"space-between",alignItems:"center",gap:20,flexWrap:"wrap" as const,padding:"30px 32px",borderRadius:24,background:"linear-gradient(135deg,rgba(20,39,66,.88),rgba(24,24,58,.72))",border:"1px solid rgba(148,163,184,.16)",boxShadow:"0 25px 70px rgba(0,0,0,.2)"};const eyebrow={margin:0,fontSize:10,fontWeight:850,letterSpacing:1.5,color:"#8ea2bd"};const sub={color:"#9fb0c7",margin:0,maxWidth:650,lineHeight:1.6};const uploadButton={display:"inline-block",padding:"13px 19px",borderRadius:12,color:"white",fontWeight:800,cursor:"pointer"};const ready={fontSize:9,color:"#5eead4",letterSpacing:1};const kpiGrid={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:13,marginTop:14};const kpiCard={padding:18,borderRadius:18,display:"flex",gap:12,alignItems:"center"};const kpiIcon={width:40,height:40,borderRadius:12,display:"grid",placeItems:"center",background:"rgba(99,102,241,.14)",color:"#a78bfa",fontSize:19};const kpiLabel={fontSize:11,color:"#8ea2bd"};const kpiValue={display:"block",fontSize:25,marginTop:4};const trend={fontSize:9,color:"#5eead4",marginTop:5};const twoCol={display:"grid",gridTemplateColumns:"minmax(0,2fr) minmax(280px,1fr)",gap:15,marginTop:15};const panel={padding:22,borderRadius:20};const panelHead={display:"flex",justifyContent:"space-between",alignItems:"center",gap:12};const panelTitle={fontSize:18,margin:"5px 0 0"};const count={fontSize:10,color:"#8294ae"};const stack={marginTop:15};const insight={display:"flex",gap:12,padding:"13px 0",borderBottom:"1px solid rgba(148,163,184,.1)"};const insightIcon={width:30,height:30,borderRadius:10,display:"grid",placeItems:"center",background:"rgba(45,212,191,.1)",color:"#2dd4bf",flexShrink:0};const specialistCta={display:"inline-block",padding:"11px 15px",borderRadius:11,color:"white",fontWeight:750,fontSize:12};const chartGrid={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:14};const chartCard={padding:20,borderRadius:18};const tag={display:"inline-block",padding:"4px 8px",borderRadius:999,background:"rgba(139,92,246,.14)",color:"#c4b5fd",fontSize:9,fontWeight:800,textTransform:"uppercase" as const};const bars={height:280,display:"flex",alignItems:"stretch",gap:8,padding:"18px 4px 36px"};const axis={fontSize:8,color:"#8294ae",marginTop:7,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" as const,textAlign:"center" as const};const noData={height:260,display:"grid",placeItems:"center",color:"#8294ae"};const emptyStyle={marginTop:18,padding:55,textAlign:"center" as const,borderRadius:22};const orb={margin:"auto",width:54,height:54,borderRadius:18,display:"grid",placeItems:"center",background:"linear-gradient(135deg,#2563eb,#8b5cf6)",boxShadow:"0 0 40px rgba(99,102,241,.35)",fontSize:22};const errorStyle={marginTop:14,padding:13,borderRadius:12,background:"rgba(127,29,29,.18)",border:"1px solid rgba(248,113,113,.25)",color:"#fca5a5"};
