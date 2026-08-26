@@ -8,13 +8,14 @@ from app.api.charts import router as charts_router
 from app.api.conversation import router as conversation_router
 from app.api.datasets import router as datasets_router
 from app.api.explanations import router as explanations_router
+from app.api.forecast import router as forecast_router
 from app.api.insights import router as insights_router
 from app.api.llm import router as llm_router
 
 app = FastAPI(
     title="AI Business Analyst API",
     description="Backend API for the AI Business Analyst platform.",
-    version="1.1.0",
+    version="1.2.0",
 )
 
 app.add_middleware(
@@ -34,6 +35,7 @@ app.include_router(explanations_router)
 app.include_router(llm_router)
 app.include_router(conversation_router)
 app.include_router(anomalies_router)
+app.include_router(forecast_router)
 
 
 @app.get("/health", tags=["system"])
