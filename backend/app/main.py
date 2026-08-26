@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.datasets import router as datasets_router
+
 app = FastAPI(
     title="AI Business Analyst API",
     description="Backend API for the AI Business Analyst platform.",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -14,6 +16,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(datasets_router)
 
 
 @app.get("/health", tags=["system"])
