@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,8 +19,18 @@ from app.api.root_cause_preview import router as root_cause_router
 from app.api.recommendations_preview import router as recommendations_router
 from app.api.scenarios import router as scenarios_router
 
-app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.4.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.4.1")
+
+configured_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+allow_origins = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(datasets_router)
 app.include_router(analytics_router)
 app.include_router(intelligence_router)
@@ -30,6 +44,7 @@ app.include_router(root_cause_router)
 app.include_router(forecast_router)
 app.include_router(recommendations_router)
 app.include_router(scenarios_router)
+
 
 @app.get("/health", tags=["system"])
 def health_check() -> dict[str, str]:
