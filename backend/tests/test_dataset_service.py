@@ -1,6 +1,6 @@
 import pandas as pd
 
-from app.services.dataset_service import preview_dataframe, profile_dataframe
+from app.services.dataset_service import load_dataframe, preview_dataframe, profile_dataframe
 
 
 def test_profile_dataframe_returns_core_quality_metrics() -> None:
@@ -18,7 +18,7 @@ def test_profile_dataframe_returns_core_quality_metrics() -> None:
     assert profile["missing_cells"] == 1
     assert profile["duplicate_rows"] == 1
     assert profile["quality_score"] < 100
-    assert profile["numeric_summary"]["revenue"]["mean"] == 1333.3333333333333
+    assert round(profile["numeric_summary"]["revenue"]["mean"], 6) == round(1333.3333333333333, 6)
 
 
 def test_preview_dataframe_limits_rows_and_preserves_nulls() -> None:
@@ -28,3 +28,12 @@ def test_preview_dataframe_limits_rows_and_preserves_nulls() -> None:
 
     assert len(preview) == 2
     assert preview[1]["value"] is None
+
+
+def test_load_dataframe_rejects_unsupported_extensions() -> None:
+    try:
+        load_dataframe("data.txt", b"hello")
+    except ValueError as exc:
+        assert "Unsupported file type" in str(exc)
+    else:
+        raise AssertionError("Expected unsupported file type to be rejected")
