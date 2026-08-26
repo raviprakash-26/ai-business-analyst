@@ -5,6 +5,7 @@ from app.api.ai import router as ai_router
 from app.api.analytics import router as analytics_router
 from app.api.anomalies import router as anomalies_router
 from app.api.analyst import router as analyst_router
+from app.api.grounded_analyst import router as grounded_analyst_router
 from app.api.charts import router as charts_router
 from app.api.conversation import router as conversation_router
 from app.api.datasets import router as datasets_router
@@ -15,12 +16,13 @@ from app.api.intelligence import router as intelligence_router
 from app.api.llm import router as llm_router
 from app.api.root_cause_preview import router as root_cause_router
 
-app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.3.0")
+app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.4.0")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.include_router(datasets_router)
 app.include_router(analytics_router)
 app.include_router(intelligence_router)
 app.include_router(analyst_router)
+app.include_router(grounded_analyst_router)
 app.include_router(insights_router)
 app.include_router(charts_router)
 app.include_router(ai_router)
