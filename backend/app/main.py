@@ -8,7 +8,6 @@ from app.api.analyst import router as analyst_router
 from app.api.grounded_analyst import router as grounded_analyst_router
 from app.api.charts import router as charts_router
 from app.api.datasets import router as datasets_router
-from app.api.explanations import router as explanations_router
 from app.api.forecast_preview import router as forecast_router
 from app.api.insights import router as insights_router
 from app.api.intelligence import router as intelligence_router
@@ -27,7 +26,6 @@ app.include_router(grounded_analyst_router)
 app.include_router(insights_router)
 app.include_router(charts_router)
 app.include_router(ai_router)
-app.include_router(explanations_router)
 app.include_router(llm_router)
 app.include_router(anomalies_router)
 app.include_router(root_cause_router)
