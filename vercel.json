@@ -9,7 +9,6 @@
       "root": "backend/",
       "entrypoint": "app/main.py",
       "framework": "fastapi",
-      "maxDuration": 60,
       "routes": [
         {
           "src": "/api/(.*)",
