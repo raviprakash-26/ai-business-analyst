@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useState } from "react";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
 type Kpi = { id: string; label: string; value: number; unit?: string };
 type Insight = { type: string; title: string; message: string };
 type Chart = { id: string; type: string; title: string; data?: { category: string; value: number }[] };
