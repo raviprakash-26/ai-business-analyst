@@ -9,7 +9,19 @@
       "root": "backend/",
       "entrypoint": "app/main.py",
       "framework": "fastapi",
-      "maxDuration": 60
+      "maxDuration": 60,
+      "routes": [
+        {
+          "src": "/api/(.*)",
+          "transforms": [
+            {
+              "type": "request.path",
+              "op": "set",
+              "args": "/$1"
+            }
+          ]
+        }
+      ]
     }
   },
   "rewrites": [
