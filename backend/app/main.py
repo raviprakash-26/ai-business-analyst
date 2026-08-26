@@ -8,22 +8,17 @@ from app.api.charts import router as charts_router
 from app.api.conversation import router as conversation_router
 from app.api.datasets import router as datasets_router
 from app.api.explanations import router as explanations_router
+from app.api.forecast import router as forecast_router
 from app.api.insights import router as insights_router
 from app.api.llm import router as llm_router
+from app.api.recommendations import router as recommendations_router
+from app.api.root_cause import router as root_cause_router
+from app.api.unified_analyst import router as unified_analyst_router
+from app.api.what_if import router as what_if_router
 
-app = FastAPI(
-    title="AI Business Analyst API",
-    description="Backend API for the AI Business Analyst platform.",
-    version="1.1.0",
-)
+app = FastAPI(title="AI Business Analyst API", description="Backend API for the AI Business Analyst platform.", version="1.6.0")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(datasets_router)
 app.include_router(analytics_router)
@@ -34,6 +29,11 @@ app.include_router(explanations_router)
 app.include_router(llm_router)
 app.include_router(conversation_router)
 app.include_router(anomalies_router)
+app.include_router(forecast_router)
+app.include_router(root_cause_router)
+app.include_router(recommendations_router)
+app.include_router(what_if_router)
+app.include_router(unified_analyst_router)
 
 
 @app.get("/health", tags=["system"])
