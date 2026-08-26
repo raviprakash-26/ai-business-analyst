@@ -1,31 +1,10 @@
 "use client";
-
 import { ChangeEvent, useState } from "react";
-
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-
 type Anomaly = { row: number; column: string; value: number; z_score: number; direction: string };
-
 export default function AnomaliesPage() {
-  const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function analyze(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setLoading(true); setError("");
-    try {
-      const form = new FormData(); form.append("file", file);
-      const response = await fetch(`${apiUrl}/anomalies/detect`, { method: "POST", body: form });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.detail ?? "Anomaly detection failed.");
-      setAnomalies(body.anomalies ?? []);
-    } catch (err) { setError(err instanceof Error ? err.message : "Anomaly detection failed."); }
-    finally { setLoading(false); }
-  }
-
-  return <main style={{ maxWidth: 1000, margin: "0 auto", padding: "56px 24px" }}><section style={cardStyle}><p style={eyebrowStyle}>Risk Analytics</p><h1 style={{ fontSize: "clamp(36px, 6vw, 62px)", margin: "10px 0" }}>Anomaly Detection</h1><p style={{ color: "#667085", lineHeight: 1.6, fontSize: 18 }}>Detect unusually high or low numeric observations that may need business investigation.</p><label style={buttonStyle}>{loading ? "Detecting…" : "Upload Dataset"}<input type="file" accept=".csv,.xlsx" onChange={analyze} disabled={loading} style={{ display: "none" }} /></label>{error && <p style={{ color: "#b42318" }}>{error}</p>}</section><section style={{ marginTop: 18, display: "grid", gap: 12 }}>{anomalies.length === 0 && !loading && <article style={cardStyle}>No anomalies detected by the current z-score rule.</article>}{anomalies.map((item, index) => <article key={`${item.column}-${item.row}-${index}`} style={cardStyle}><div style={tagStyle}>{item.direction} anomaly</div><h2 style={{ margin: "10px 0" }}>{item.column}</h2><p style={{ color: "#475467", marginBottom: 0 }}>Row {item.row} · Value {item.value.toLocaleString()} · z-score {item.z_score}</p></article>)}</section></main>;
+  const [anomalies,setAnomalies]=useState<Anomaly[]>([]); const [loading,setLoading]=useState(false); const [error,setError]=useState("");
+  async function analyze(e:ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];if(!file)return;setLoading(true);setError("");try{const form=new FormData();form.append("file",file);const r=await fetch(`${apiUrl}/anomalies/detect`,{method:"POST",body:form});const b=await r.json();if(!r.ok)throw new Error(b.detail??"Anomaly detection failed.");setAnomalies(b.anomalies??[]);}catch(err){setError(err instanceof Error?err.message:"Anomaly detection failed.");}finally{setLoading(false)}}
+  return <main style={page}><section style={hero} className="glass"><div><div style={eyebrow}>RISK ANALYTICS</div><h1 style={h1}>Anomaly Detection</h1><p style={subtitle}>Detect unusually high or low observations that may need business investigation.</p><label className="glow-button" style={button}>{loading?"Detecting…":"☁ Upload Dataset"}<input type="file" accept=".csv,.xlsx" onChange={analyze} disabled={loading} style={{display:"none"}}/></label>{error&&<div style={errorStyle}>{error}</div>}</div><div style={orb}>!</div></section><section style={grid}>{anomalies.length===0&&!loading?<article style={empty} className="glass"><div style={icon}>✓</div><h2>No anomalies detected</h2><p>The current z-score rule found no unusual numeric observations in the uploaded dataset.</p></article>:anomalies.map((item,index)=><article key={`${item.column}-${item.row}-${index}`} style={card} className="glass"><span style={tag}>{item.direction} anomaly</span><h2 style={{margin:"12px 0 8px"}}>{item.column}</h2><div style={stats}><div><span>Row</span><strong>{item.row}</strong></div><div><span>Value</span><strong>{item.value.toLocaleString()}</strong></div><div><span>Z-score</span><strong>{Number(item.z_score).toFixed(2)}</strong></div></div><p style={muted}>Review this observation against the underlying business context before taking action.</p></article>)}</section></main>;
 }
-
-const cardStyle = { background: "white", borderRadius: 22, padding: 30, border: "1px solid #e7ebf2" }; const eyebrowStyle = { margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" as const, color: "#667085" }; const buttonStyle = { display: "inline-block", marginTop: 14, borderRadius: 12, padding: "13px 18px", background: "#172033", color: "white", cursor: "pointer", fontWeight: 800 }; const tagStyle = { display: "inline-block", padding: "5px 9px", borderRadius: 999, background: "#fff1f0", color: "#b42318", fontSize: 11, fontWeight: 800, textTransform: "uppercase" as const };
+const page={maxWidth:1200,margin:"0 auto",padding:"42px 28px 70px"};const hero={minHeight:310,padding:"42px 46px",borderRadius:28,display:"flex",justifyContent:"space-between",alignItems:"center",gap:25,background:"linear-gradient(135deg,rgba(19,38,65,.88),rgba(62,25,43,.7))",border:"1px solid rgba(148,163,184,.16)"};const eyebrow={fontSize:10,fontWeight:850,letterSpacing:1.5,color:"#fca5a5"};const h1={fontSize:"clamp(40px,6vw,64px)",margin:"12px 0",letterSpacing:-2};const subtitle={maxWidth:680,color:"#a9b8cc",fontSize:16,lineHeight:1.7,marginBottom:22};const button={display:"inline-block",padding:"13px 18px",borderRadius:12,color:"white",fontWeight:800,cursor:"pointer"};const orb={width:180,height:180,borderRadius:"50%",display:"grid",placeItems:"center",flexShrink:0,fontSize:70,fontWeight:900,color:"#fda4af",background:"radial-gradient(circle,rgba(244,63,94,.22),transparent 68%)",border:"1px solid rgba(244,63,94,.2)",boxShadow:"0 0 80px rgba(244,63,94,.12)"};const grid={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:13,marginTop:16};const card={padding:22,borderRadius:18,border:"1px solid rgba(148,163,184,.13)"};const empty={padding:50,borderRadius:20,border:"1px solid rgba(148,163,184,.13)",textAlign:"center" as const,gridColumn:"1/-1"};const icon={width:48,height:48,borderRadius:15,display:"grid",placeItems:"center",margin:"0 auto 12px",background:"rgba(45,212,191,.1)",color:"#5eead4",fontSize:20};const tag={display:"inline-block",padding:"5px 9px",borderRadius:999,background:"rgba(244,63,94,.1)",color:"#fda4af",fontSize:9,fontWeight:850,textTransform:"uppercase" as const};const stats={display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8};const muted={color:"#8fa4bf",fontSize:12,lineHeight:1.6};const errorStyle={marginTop:15,padding:12,borderRadius:11,background:"rgba(127,29,29,.25)",color:"#fca5a5",fontSize:12};
