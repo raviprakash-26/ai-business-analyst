@@ -20,7 +20,7 @@ export default function RealDatasetIntelligence() {
     if (!active) { setStatus("No dataset loaded"); return; }
     async function runAnalysis() {
       try {
-        const response = await fetch(`${apiUrl}/intelligence/analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: active.preview, filename: active.filename }) });
+        const response = await fetch(`${apiUrl}/intelligence/analyze-preview`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rows: active.preview, filename: active.filename }) });
         if (!response.ok) throw new Error("Backend analysis unavailable");
         setAnalysis(await response.json());
         setStatus("Backend intelligence ready");
