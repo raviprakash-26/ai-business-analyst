@@ -4,10 +4,12 @@ import { FormEvent, useState } from "react";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+type Answer = { status?: string; tool?: string; answer?: string; result?: unknown; evidence?: unknown[] };
+
 export default function AskPage() {
   const [file, setFile] = useState<File | null>(null);
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<{ tool?: string; answer?: string; result?: unknown } | null>(null);
+  const [answer, setAnswer] = useState<Answer | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,12 +26,12 @@ export default function AskPage() {
       const form = new FormData();
       form.append("file", file);
       form.append("question", question);
-      const response = await fetch(`${apiUrl}/ai/analyze`, { method: "POST", body: form });
+      const response = await fetch(`${apiUrl}/query/analyze`, { method: "POST", body: form });
       const body = await response.json();
-      if (!response.ok) throw new Error(body.detail ?? "Unable to answer the question.");
+      if (!response.ok) throw new Error(body.detail ?? "Unable to analyze the question.");
       setAnswer(body);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to answer the question.");
+      setError(err instanceof Error ? err.message : "Unable to analyze the question.");
     } finally {
       setLoading(false);
     }
@@ -38,12 +40,11 @@ export default function AskPage() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "56px 24px" }}>
       <section style={cardStyle}>
-        <p style={eyebrowStyle}>AI Business Analyst</p>
+        <p style={eyebrowStyle}>Natural Language Analyst</p>
         <h1 style={{ fontSize: "clamp(38px, 6vw, 64px)", margin: "10px 0" }}>Ask Your Data</h1>
         <p style={{ color: "#667085", lineHeight: 1.6, fontSize: 18 }}>
-          Ask a business question and receive an answer from verified analytics tools.
+          Ask a business question in natural language. Answers are calculated from your dataset using verified analytics tools.
         </p>
-
         <form onSubmit={ask} style={{ display: "grid", gap: 14, marginTop: 28 }}>
           <label style={labelStyle}>Dataset
             <input type="file" accept=".csv,.xlsx" onChange={(event) => setFile(event.target.files?.[0] ?? null)} style={inputStyle} />
@@ -55,12 +56,12 @@ export default function AskPage() {
         </form>
         {error && <p style={{ color: "#b42318" }}>{error}</p>}
       </section>
-
       {answer && (
         <section style={{ ...cardStyle, marginTop: 18 }}>
-          <div style={tagStyle}>Tool: {answer.tool}</div>
+          <div style={tagStyle}>{answer.status ?? "answered"} · {answer.tool}</div>
           <h2 style={{ margin: "12px 0" }}>Analyst Answer</h2>
           <p style={{ fontSize: 20, lineHeight: 1.6 }}>{answer.answer}</p>
+          <div style={evidenceStyle}>Evidence: calculated from the uploaded dataset using the deterministic analytics engine.</div>
           {answer.result !== undefined && <pre style={resultStyle}>{JSON.stringify(answer.result, null, 2)}</pre>}
         </section>
       )}
@@ -73,5 +74,6 @@ const eyebrowStyle = { margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: 
 const labelStyle = { display: "grid", gap: 8, fontWeight: 700 };
 const inputStyle = { width: "100%", padding: 13, borderRadius: 12, border: "1px solid #d0d5dd", background: "white" };
 const buttonStyle = { border: 0, borderRadius: 12, padding: "14px 18px", background: "#172033", color: "white", cursor: "pointer", fontWeight: 800 };
-const tagStyle = { display: "inline-block", padding: "5px 9px", borderRadius: 999, background: "#eef2f7", color: "#475467", fontSize: 11, fontWeight: 800 };
+const tagStyle = { display: "inline-block", padding: "5px 9px", borderRadius: 999, background: "#eef2f7", color: "#475467", fontSize: 11, fontWeight: 800, textTransform: "uppercase" as const };
+const evidenceStyle = { padding: 14, borderRadius: 12, background: "#f6f8fb", color: "#667085", fontSize: 13 };
 const resultStyle = { padding: 16, borderRadius: 12, background: "#f6f8fb", overflowX: "auto" as const };
