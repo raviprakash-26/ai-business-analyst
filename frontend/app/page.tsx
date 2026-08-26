@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import DemoDatasetButton from "./components/DemoDatasetButton";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -35,13 +36,11 @@ export default function Home() {
     }
   }
 
-  async function uploadDataset(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  async function profileFile(file: File) {
     setUploading(true);
     setError("");
     setDataset(null);
+    setStatus(`Profiling ${file.name}…`);
 
     try {
       const formData = new FormData();
@@ -56,11 +55,18 @@ export default function Home() {
       if (!response.ok) throw new Error(body.detail ?? "Dataset upload failed.");
 
       setDataset(body);
-    } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Dataset upload failed.");
+      setStatus("Dataset ready for analysis");
+    } catch (profileError) {
+      setError(profileError instanceof Error ? profileError.message : "Dataset upload failed.");
+      setStatus("Dataset profiling failed");
     } finally {
       setUploading(false);
     }
+  }
+
+  async function uploadDataset(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (file) await profileFile(file);
   }
 
   return (
@@ -73,18 +79,19 @@ export default function Home() {
           Turn business data into intelligent decisions.
         </h1>
         <p style={{ maxWidth: 700, fontSize: 19, lineHeight: 1.7, color: "#566176" }}>
-          Upload a business dataset to profile its structure, data quality and first rows before we build the full analytics engine.
+          Upload a business dataset or launch the retail demo to profile data quality and prepare it for intelligent analysis.
         </p>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
-          <button onClick={checkBackend} style={buttonStyle}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 28, alignItems: "center" }}>
+          <button onClick={checkBackend} style={buttonStyle} disabled={uploading}>
             Check API Connection
           </button>
-          <label style={{ ...buttonStyle, background: "#eef2f7", color: "#172033" }}>
+          <label style={{ ...buttonStyle, background: "#eef2f7", color: "#172033", opacity: uploading ? 0.6 : 1 }}>
             {uploading ? "Profiling…" : "Upload CSV / XLSX"}
             <input type="file" accept=".csv,.xlsx" onChange={uploadDataset} disabled={uploading} style={{ display: "none" }} />
           </label>
-          <span style={{ alignSelf: "center", color: "#566176" }}>{status}</span>
+          <DemoDatasetButton onLoaded={profileFile} />
+          <span style={{ color: "#566176" }}>{status}</span>
         </div>
         {error && <p style={{ color: "#b42318", marginTop: 18 }}>{error}</p>}
       </section>

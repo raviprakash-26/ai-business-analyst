@@ -1,0 +1,31 @@
+Date,Region,Category,Product,Units_Sold,Revenue_INR,Cost_INR,Profit_INR
+2026-01-01,Chennai,Electronics,Wireless Mouse,42,25200,16800,8400
+2026-01-02,Chennai,Electronics,Keyboard,31,27900,18600,9300
+2026-01-03,Bengaluru,Home,Storage Box,55,22000,14300,7700
+2026-01-04,Mumbai,Beauty,Face Wash,68,27200,16320,10880
+2026-01-05,Delhi,Electronics,Headphones,37,37000,24050,12950
+2026-01-06,Hyderabad,Home,Water Bottle,74,22200,13320,8880
+2026-01-07,Chennai,Beauty,Shampoo,61,24400,14640,9760
+2026-01-08,Bengaluru,Electronics,USB Hub,48,28800,19200,9600
+2026-01-09,Mumbai,Home,Desk Lamp,39,23400,15210,8190
+2026-01-10,Delhi,Beauty,Moisturizer,52,31200,18720,12480
+2026-01-11,Hyderabad,Electronics,Power Bank,45,40500,27000,13500
+2026-01-12,Chennai,Home,Notebook,83,16600,9960,6640
+2026-01-13,Bengaluru,Beauty,Sunscreen,57,34200,20520,13680
+2026-01-14,Mumbai,Electronics,Webcam,29,29000,18850,10150
+2026-01-15,Delhi,Home,Office Chair,18,27000,18900,8100
+2026-01-16,Hyderabad,Beauty,Hair Serum,46,32200,19320,12880
+2026-01-17,Chennai,Electronics,SSD 500GB,24,43200,30240,12960
+2026-01-18,Bengaluru,Home,Coffee Maker,21,31500,22050,9450
+2026-01-19,Mumbai,Beauty,Lip Balm,76,22800,13680,9120
+2026-01-20,Delhi,Electronics,Bluetooth Speaker,33,39600,25740,13860
+2026-01-21,Hyderabad,Home,Wall Clock,41,16400,9840,6560
+2026-01-22,Chennai,Beauty,Body Lotion,64,25600,15360,10240
+2026-01-23,Bengaluru,Electronics,Monitor 24in,16,40000,28000,12000
+2026-01-24,Mumbai,Home,Electric Kettle,38,26600,17290,9310
+2026-01-25,Delhi,Beauty,Perfume,27,35100,21060,14040
+2026-01-26,Hyderabad,Electronics,Phone Stand,59,17700,10620,7080
+2026-01-27,Chennai,Home,Backpack,36,28800,18720,10080
+2026-01-28,Bengaluru,Beauty,Face Serum,44,35200,21120,14080
+2026-01-29,Mumbai,Electronics,Smart Plug,32,25600,16640,8960
+2026-01-30,Delhi,Home,Table Organizer,53,21200,12720,8480
