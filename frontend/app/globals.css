@@ -40,39 +40,45 @@ button { transition: transform .18s ease, box-shadow .18s ease, border-color .18
 button:hover { transform: translateY(-1px); }
 
 .theme-toggle {
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  background: var(--panel);
-  color: var(--text);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 750;
-  box-shadow: 0 6px 18px rgba(15,23,42,.08);
+  height: 38px; display: inline-flex; align-items: center; gap: 7px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 11px; background: var(--panel); color: var(--text);
+  cursor: pointer; font-size: 11px; font-weight: 750; box-shadow: 0 6px 18px rgba(15,23,42,.08);
 }
 .theme-toggle:hover { border-color: rgba(99,102,241,.45); box-shadow: 0 8px 22px rgba(79,70,229,.14); }
 .theme-toggle span:first-child { font-size: 15px; line-height: 1; }
 
 .glass {
   background: linear-gradient(145deg, rgba(23,43,73,.78), rgba(8,20,36,.72));
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.05);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
 }
 html[data-theme="light"] .glass {
   background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(241,245,249,.88));
   box-shadow: 0 16px 45px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.8);
 }
-html[data-theme="light"] .app-sidebar .muted,
-html[data-theme="light"] .app-header .muted { color: var(--muted) !important; }
-html[data-theme="light"] .dataset-card,
-html[data-theme="light"] .status-box { box-shadow: 0 10px 30px rgba(15,23,42,.05); }
+html[data-theme="light"] .app-sidebar .muted, html[data-theme="light"] .app-header .muted { color: var(--muted) !important; }
+html[data-theme="light"] .dataset-card, html[data-theme="light"] .status-box { box-shadow: 0 10px 30px rgba(15,23,42,.05); }
 html[data-theme="light"] .search-box { box-shadow: inset 0 1px 2px rgba(15,23,42,.03); }
+
+/* Light-theme readability fixes for the analytical panels. These override legacy inline dark text colors. */
+html[data-theme="light"] .app-content main > .glass:not(:first-child) h2,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) h3,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) strong,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) span:not(.glow-button),
+html[data-theme="light"] .app-content main > .glass:not(:first-child) label { color: var(--text) !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) p,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) small { color: var(--muted) !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) input,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) textarea,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) select { background: #fff !important; color: var(--text) !important; border-color: rgba(100,116,139,.24) !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) input::placeholder,
+html[data-theme="light"] .app-content main > .glass:not(:first-child) textarea::placeholder { color: #94a3b8 !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) button:not(.glow-button) { color: var(--text) !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) .glass { background: rgba(255,255,255,.72); }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) [style*="color: #8fa4bf"],
+html[data-theme="light"] .app-content main > .glass:not(:first-child) [style*="color:#8fa4bf"],
+html[data-theme="light"] .app-content main > .glass:not(:first-child) [style*="color: #9fb0c7"] { color: var(--muted) !important; }
+html[data-theme="light"] .app-content main > .glass:not(:first-child) [style*="color: #dce7f5"] { color: var(--text) !important; }
 
 .glow-button { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 10px 30px rgba(79,70,229,.35); }
 @media (max-width: 900px) {
